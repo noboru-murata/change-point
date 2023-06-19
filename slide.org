@@ -1,0 +1,603 @@
+#+TITLE: Change-Point Detection in a Sequence of Bags-of-Data
+#+SUBTITLE: an extension of anomaly analysis
+#+AUTHOR: Noboru Murata
+#+EMAIL: noboru.murata@gmail.com
+#+DATE: \today
+#+DESCRIPTION: based on Koshijima etal (2015), doi:10.1109/TKDE.2015.2426693
+#+KEYWORDS: time series analysis, change-point detection, machine learning
+#+LANGUAGE: en
+#+STARTUP: beamer hidestars content indent
+:BEAMER:
+#+OPTIONS: H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+# #+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:https://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+HTML_LINK_UP:
+#+HTML_LINK_HOME:
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [fleqn,aspectratio=1610]
+#+BEAMER_HEADER: \usepackage[toc=none]{mytalk}
+# #+BEAMER_HEADER: \usepackage[toc=none,font=heavy]{mytalk}
+#+BEAMER_HEADER: \addbibresource{papers.bib}
+#+BEAMER_HEADER: \graphicspath{{figs/},{refs/}}
+#+BEAMER_HEADER: \DeclareGraphicsExtensions{.pdf,.png,.eps,.jpg}
+#+BEAMER_HEADER: \institute{\url{https://noboru-murata.github.io/}}
+# #+BEAMER_HEADER: \institute[WASEDA]{Waseda University\\\url{https://noboru-murata.github.io/}}
+# #+BEAMER_HEADER: \titlegraphic{\includegraphics[height=1.5cm]{symbol_waseda_3.jpg}
+# #+BEAMER_HEADER:    \includegraphics[height=1.5cm,viewport=0 0 150 150,clip]{UTlogo.jpg}
+# #+BEAMER_HEADER:    \includegraphics[height=1.5cm]{nict-logo-new2.png}}
+# #+BEAMER_HEADER: \myLogo{\lower9pt\hbox{
+# #+BEAMER_HEADER:    \reflectbox{\includegraphics[height=26pt]{milk_gray.png}}
+# #+BEAMER_HEADER:    \kern-8pt\includegraphics[height=18pt,width=22pt]{milk_sepia.png}}}
+#+COLUMNS: "%45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)"
+# column view: C-c C-x C-c / C-c C-c or q
+# beamer block: C-c C-b
+:END:
+
+* Introduction
+** motivated examples
+*** Anomaly & Change-point Detection
+:PROPERTIES:
+:BEAMER_OPT: t
+:END:
+#+begin_center
+\includegraphics[page=1,width=.8\linewidth]{changepoint_new}
+#+end_center
+- objective
+  - anomaly detection \\
+    --- find an outlier of time series
+  - *change-point detection* \\
+    --- find a drastic change of time series
+
+*** Simple Stochastic Problem
+:PROPERTIES:
+:BEAMER_OPT: t
+:END:
+#+begin_center
+\includegraphics[page=2,width=.8\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \begin{overprint}
+#+beamer: \onslide<2>
+- generating mechanism
+  \begin{equation}
+    X_{t}=
+    \begin{cases}
+      c_{0}+\varepsilon_{t},&t<t_{0},\\
+      c_{1}+\varepsilon_{t},&t\geq t_{0},
+    \end{cases}
+    \quad \varepsilon_{t}\sim P
+  \end{equation}
+#+beamer: \onslide<3>
+- summary statistics
+  \begin{align}
+    \bar{X}_{t}=
+    &\frac{1}{\tau}\sum_{i=0}^{\tau-1}X_{t-i}\\
+    &\text{estimates of mean values (moving average)}
+  \end{align}
+#+beamer: \onslide<4>
+#+begin_center
+\includegraphics[page=3,width=.8\linewidth]{changepoint_new}      
+#+end_center
+#+beamer: \end{overprint}
+
+*** Difficult Stochastic Problem
+:PROPERTIES:
+:BEAMER_OPT: t
+:END:  
+#+begin_center
+\includegraphics[page=4,width=.8\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \begin{overprint}
+#+beamer: \onslide<2>
+- generating mechanism
+  \begin{equation}
+    X_{t}=
+    \begin{cases}
+      c_{0}+\varepsilon_{t},&t<t_{0}, \quad \varepsilon_{t}\sim P\\
+      c_{0}+\xi_{t},&t\geq t_{0}, \quad \xi_{t}\sim Q
+    \end{cases}
+  \end{equation}
+#+beamer: \onslide<3>
+- summary statistics:
+  \begin{align}
+    V_{t}=
+    &\frac{1}{\tau'}\sum_{i=0}^{\tau'-1}(X_{t-i}-\bar{X}_{t})^{2}\\
+    &\text{estimates of variances}
+  \end{align}
+#+beamer: \onslide<4>
+#+begin_center
+\includegraphics[page=5,width=.8\linewidth]{changepoint_new}      
+#+end_center
+#+beamer: \end{overprint}
+
+*** Slightly Difficult Problem 
+:PROPERTIES:
+:BEAMER_OPT: t
+:END:  
+#+begin_center
+\includegraphics[page=11,width=.8\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \begin{overprint}
+#+beamer: \onslide<2>
+- generating mechanism
+  \begin{equation}
+    X_{t}=
+    aX_{t-1}+bX_{t-2}+\varepsilon_{t},
+    \quad\varepsilon_{t}\sim 
+    \begin{cases}
+      P,&t<t_{0}, \\
+      Q,&t\geq t_{0}
+    \end{cases}
+  \end{equation}
+#+beamer: \onslide<3>
+- summary statistics
+  \begin{align}
+    Var(\hat{\varepsilon}_{t})
+    &\quad
+      \text{(estimated from \(X_{t},X_{t-1},\dotsc\))}\\
+    &\text{estimates of innovation variances}\\
+    &\hat{\varepsilon}_{t}=X_{t}-\hat{X}_{t}=X_{t}-(\hat{a}X_{t-1}+\hat{b}X_{t-2})
+  \end{align}
+#+beamer: \onslide<4>
+#+begin_center
+\includegraphics[page=12,width=.8\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \end{overprint}
+
+*** More Difficult Problem
+:PROPERTIES:
+:BEAMER_OPT: t
+:END:  
+#+begin_center
+\includegraphics[page=9,width=.8\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \begin{overprint}
+#+beamer: \onslide<2>
+- generating mechanism
+  \begin{equation}
+    X_{t}=
+    \begin{cases}
+      a_{0}X_{t-1}+b_{0}X_{t-2}+\varepsilon_{t},&t<t_{0}, \\
+      a_{1}X_{t-1}+b_{1}X_{t-2}+\varepsilon_{t},&t\geq t_{0},       
+    \end{cases}
+    \quad \varepsilon_{t}\sim P
+  \end{equation}
+#+beamer: \onslide<3>
+- summary statistics
+  \begin{align}
+    \hat{a}_{t}, \hat{b}_{t}
+    &\quad
+      \text{(estimated from \(X_{t},X_{t-1},\dotsc\))}\\
+    &\text{estimates of coefficients}
+  \end{align}
+#+begin_quote
+note: *multi-dimensional problem*
+#+end_quote
+#+beamer: \onslide<4>
+#+begin_center
+\includegraphics[page=10,width=.8\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \end{overprint}
+
+** target problem
+*** Change-point Detection
+**** Problem                                                :B_alertblock:
+:PROPERTIES:
+:BEAMER_env: alertblock
+:END:
+find time points at which 
+the generating mechanism of time series suddenly changes
+#+beamer: \bigskip
+**** notes                                               :B_ignoreheading:
+:PROPERTIES:
+:BEAMER_env: ignoreheading
+:END:
+- applications
+  - intrusion detection in computer networks
+  - irregular-motion detection in vision systems
+  - signal segmentation in data stream
+  - fraud detection in cellular systems
+  - fault detection in engineering systems
+  - etc.
+
+*** Standard Problem Setting
+- framework
+  - datum at time \(t\):  \(X_t\)\\
+    a random variable (stochastic process)\\
+    *fixed length data vectors are considered*
+  - objective \\
+    examine whether \(X_t,X_{t+1},\dotsc\) differ from
+    \(X_{t-1},X_{t-2},\dotsc\) @@latex:\\[4pt]@@
+    (or whether %
+    \(X_t\) can be predicted from \(X_{t-1},X_{t-2},\dotsc\))
+  - typical approach: define change-point scores, e.g.
+    \begin{equation}
+      \mathrm{score}(X_t)=-\log\Pr(X_t|X_{t-1},X_{t-2},\dotsc)
+    \end{equation}
+    *summary statistics are used for specifying probability models*
+
+*** Previous Works
+# there are many attempts/proposals
+- representative algorithms
+  - Singular Spectrum Analysis \\
+    (Moskvinaa & Zhigljavskya, 2003) \nocite{MoskvinaZhigljavsky2003}
+  - ChangeFinder \\
+    (Takeuchi & Yamanishi, 2006) \nocite{TakeuchiYamanishi2006}
+  - Kullback-Leibler Importance Estimation Procedure \\
+    (Sugiyama et al. 2007) \nocite{Sugiyama_etal2007nips}
+- differences of these approaches
+  - generative models of time series
+  - computational costs
+  - scalability of data size
+  - sensitivity to change of regularity
+
+*** Target Problem
+:PROPERTIES:
+:BEAMER_OPT: t
+:END:  
+#+begin_center
+\includegraphics[page=6,width=.75\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \begin{overprint}
+#+beamer: \onslide<2>
+- generating mechanism
+  \begin{equation}
+    X_{t}=
+    \begin{cases}
+      c_{0}+\varepsilon_{t},&t<t_{0}, \quad\varepsilon_{t}\sim P\\
+      c_{0}+\xi_{t},&t\geq t_{0}, \quad\xi_{t}\sim Q
+    \end{cases}
+  \end{equation}
+#+beamer: \onslide<3>
+- summary statistics
+  \begin{align}
+    \bar{X}_{t}=&\frac{1}{\tau}\sum_{i=0}^{\tau-1}X_{t-i}
+    &\text{(moving average)},\\
+    % \bar{X}_{t}&\;\text{(moving average)},\\
+    V_{t}=&\frac{1}{\tau'}\sum_{i=0}^{\tau'-1}(X_{t-i}-\bar{X}_{t})^{2}
+                 &\text{(volatility)}
+    %V_{t}&\;\text{(volatility)}
+  \end{align}
+#+beamer: \onslide<4>
+#+begin_center
+\includegraphics[page=7,width=.75\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \onslide<5>
+- summary statistics
+  \begin{align}
+    \hat{P}_{t}
+    &=\text{(density estimates of \(X_{t},X_{t-1},\dotsc\))}\\
+    &\text{i.e. histogram, kernel density estimate, etc.}
+  \end{align}
+#+beamer: \onslide<6>
+#+begin_center
+\includegraphics[page=8,width=.75\linewidth]{changepoint_new}
+#+end_center
+#+beamer: \end{overprint}
+
+
+* Problem Formulation
+** change-point in bags-of-data 
+*** Our Problem Setting
+- framework
+  - datum at time \(t\): \(B_t=\{X_i;i=1,\dotsc,n_t\}\) \\
+    a set of random variables, i.e. a bag of data\\
+    *size of bag can be different in time*
+  - objective: \\
+    examine whether \(B_t,B_{t+1},\dotsc\) differ from 
+    \(B_{t-1},B_{t-2},\dotsc\) @@latex:\\[4pt]@@
+    in statistical setup:\\
+    *examine whether \(\Pr(B_t)\) is predictable from \(\Pr(B_{t-1}),\Pr(B_{t-2}),\dotsc\)*
+    # \(P(D_{t-1}),P(D_{t-2}),\dotsc\)
+    \nocite{KoshijimaHinoMurata2015}
+    # % \begin{quote}
+    # %   \footnotesize
+    # %   Kensuke Koshijima, Hideitsu Hino, Noboru Murata, "Change-Point
+    # %   Detection in a Sequence of Bags-of-Data", IEEE Transactions on
+    # %   Knowledge \& Data Engineering, 2015.
+    # %   \texttt{doi:10.1109/TKDE.2015.2426693 }
+    # % \end{quote}
+
+*** Sequence of Bags-of-Data
+#+begin_center
+\includegraphics[width=\linewidth,viewport=0 20 960 340,clip]{time_series_hist}\\
+detect a change of distributions behind bags
+#+end_center
+
+*** Problem setting
+- standard problem setting
+  #+begin_center
+  \includegraphics[width=.8\linewidth]{standard_problem_setting}
+  #+end_center
+- *our problem setting*
+  #+begin_center
+  \includegraphics[width=.8\linewidth]{our_problem_setting}
+  #+end_center
+
+*** Examples of Problem
+# % interesting examples %of our setting 
+# % are found in graph-structured data analysis:
+# % problems suit for our setting:
+- graph-structured examples: sender-receiver scenario
+  - internet incident detection \\ 
+    (relation between source and destination hosts)
+  - Enron email dataset \\ 
+    (relation between mail senders and receivers)
+  - market trading analysis \\
+    (relation between buyers and sellers)
+
+- other examples: multi-variate data
+  - multi-sensor plant data \\
+    (colinearlity analysis of non-stationary data)
+  - follow-up surveys \\
+    (random missing)
+
+*** Representation by Bags
+- parametric model
+  \begin{equation}
+    B_t=\{X_{i}\}\sim P_{\theta_t}
+  \end{equation}
+  reduce to the change-point detection problem of
+  \(\{\theta_t\}\)
+- non-parametric model
+  \begin{equation}
+    B_t=\{X_{i}\}\sim P_{B_t}
+    \quad\text{(histogram, Parzen window, etc)}
+    % \quad\text{(histogram, kernel density estimate, etc)}
+  \end{equation}
+  deal with probability distributions \(\{P_{B_t}\}\)
+
+*** Proposed Approach
+- non-parametric model: *weighted data sets (histograms)*
+  - flexible for modeling various distributions 
+    # difficult to make a proper model
+    # which is valid for all the time
+  - scalable for large sparse graphs
+    # data with signature trick
+    # time consuming to estimate large graph parameters 
+    # \item stable on sparse data of large graphs
+    # usually data can be sparse for large graphs
+#+beamer: \bigskip
+- twofold procedure for detection
+  - embed each \(P_{B_t}\) in an appropriate metric space
+  - examine whether fluctuation of \(\{P_{B_t}\}\)
+    is anomalous or not
+
+** metric of bags-of-data
+*** Embedding in a Metric Space
+#+begin_center
+\includegraphics[width=.8\linewidth]{embedding}\\
+detect a significant change by following a path of bags
+#+end_center
+
+*** Regular? or Anomalous?
+#+begin_center
+\includegraphics[width=.5\linewidth]{our_problem_setting}
+@@latex:\\[10pt]@@
+\includegraphics[width=.8\linewidth,viewport=50 0 814 360,clip]{metric_space}
+#+end_center
+# calculate deviation of test set from reference
+
+*** Earth Mover's Distance
+- distance between distributions \(P\) and \(Q\):
+  - the least amount of work needed to match two distributions,
+    i.e. a kind of edit distance
+  - proposed 
+    as a perceptually natural dissimilarity measure 
+    in computer vision 
+  - efficiently calculated by linear programming
+  - mathematically equivalent to Wasserstein/Mallows distance
+  #   % \item mathematically equivalent to Wasserstein distance
+
+\begin{multline}
+  D(P,Q)=\inf_{R} \mathbb{E}_{(X,Y\sim R)}[d(X,Y)],\text{ (\(d\) can be any distance)} \\
+  \text{where } P(X)=\int R(X,dy),
+  \text{ and } Q(Y)=\int R(dx,Y)
+\end{multline}
+
+*** Earth Mover's Distance
+#+begin_center
+\includegraphics[width=.75\linewidth]{emd_final}
+@@latex:\\[10pt]@@
+histogram: \(\{(\text{bin}, \text{freq})\}\);
+\(P=\{(\boldsymbol{u},w)\}\), 
+\(Q=\{(\boldsymbol{v},w')\}\)
+#+end_center
+
+*** Regular or Anomalous                                     :B_againframe:
+:PROPERTIES:
+:BEAMER_env: againframe
+:BEAMER_ref: *Regular? or Anomalous?
+:BEAMER_act: <1>
+:END:
+
+** two sample problem for bags-of-data
+*** Two Sample Problem
+**** Problem                                                :B_alertblock:
+:PROPERTIES:
+:BEAMER_env: alertblock
+:END:
+given i.i.d. observations 
+\(\{x_{i};\,i=1,\dotsc,m\}\sim P\) and 
+\(\{y_{j};\,j=1,\dotsc,n\}\sim Q\),
+examine whether \(P\not=Q\)
+#+beamer: \bigskip
+**** Note                                                :B_ignoreheading:
+:PROPERTIES:
+:BEAMER_env: ignoreheading
+:END:
+- possible criteria
+  - empirical mean (moment matching)
+  - KL divergence with parametric models
+  - KL divergence without models
+
+*** Information & Entropy Estimators
+- distance-based entropy estimators
+  # % (Hino \& NM, 2013):
+  \nocite{HinoMurata2013}
+  - bags with weights: \(\mathfrak{D}=\{(B_i,w_i);i=1,\dotsc,n\}\)
+  - information content
+    \begin{equation}
+      I(B;\mathfrak{D})
+      =c+d\sum_{B_i\in\mathfrak{D}}w_i\log D(B_i,B)
+      \qquad(c,d:\;\text{const.})
+    \end{equation}
+  - cross-entropy
+    \begin{equation}
+      H(\mathfrak{D},\mathfrak{D}')
+      =c+d\sum_{B_i\in\mathfrak{D},B'_j\in\mathfrak{D}'}
+      w_iw'_j\log D(B_i,B'_j)
+    \end{equation}
+  - auto-entropy
+    \begin{equation}
+      H(\mathfrak{D})
+      =c+d\sum_{B_i,B_j\in\mathfrak{D},B_j\not=B_i}
+      \frac{w_iw_j}{1-w_i}\log D(B_i,B_j)
+    \end{equation}
+
+*** Change-Point Scores
+- reference and test datasets
+  \begin{align}
+   \mathfrak{D}_{t}^{\mathrm{ref}}
+   &=\{(B_i,w_i);i=t-1,t-2,\dotsc\}
+    &&\text{ (past bags)}
+   \\
+   \mathfrak{D}_{t}^{\mathrm{test}}
+   &=\{(B_i,w_i);i=t,t+1,\dotsc\}
+    &&\text{ (future bags)}
+  \end{align}
+  where weights are used as discounting factors
+- likelihood ratio (f: density)
+  \begin{align}
+   \mathrm{score}_{t}
+   &=\log\frac{f_{\mathrm{test}}(B_t)}{f_{\mathrm{ref}}(B_t)}
+   =I(B_t;\mathfrak{D}_{t}^{\mathrm{ref}})
+   -I(B_t;\mathfrak{D}_{t}^{\mathrm{test}})
+  \end{align}
+- symmetric Kullback-Leibler divergence
+  \begin{align}
+    \mathrm{score}_{t}
+    % &=\frac{KL(\mathfrak{D}_{t}^{\mathrm{ref}}\|\mathfrak{D}_{t}^{\mathrm{test}})
+    % +KL(\mathfrak{D}_{t}^{\mathrm{test}}\|\mathfrak{D}_{t}^{\mathrm{ref}})}{2}\\
+    &=\frac{2H(\mathfrak{D}_{t}^{\mathrm{ref}},\mathfrak{D}_{t}^{\mathrm{test}})
+     -H(\mathfrak{D}_{t}^{\mathrm{ref}})-H(\mathfrak{D}_{t}^{\mathrm{test}})}{2}
+  \end{align}
+
+*** Bootstrap Confidence Interval
+- Bayesian bootstrap: Bayesian analogue of the bootstrap
+  \begin{quote}
+    instead of resampling from an empirical distribution,
+    weighted samples are used where weights are sampled
+    from the Dirichlet distribution
+    \begin{align}
+      (N_{1},\dotsc,N_{k})
+      &\sim \mathrm{Mult}(n;\rho_{1},\dotsc,\rho_{k})
+      &&\text{(resampling)}
+      \\
+      (W_{1},\dotsc,W_{k})
+      &\sim \mathrm{Dir}(\alpha_{1},\dotsc,\alpha_{k})
+      &&\text{(reweighting)}
+    \end{align}
+  \end{quote}
+- if we let \(\alpha_{i}=n\rho_{i}\):
+  \begin{align}
+    \mathbb{E}[N_{i}]&=\mathbb{E}[W_{i}]=\rho_{i}\\
+    \mathrm{Var}[N_{i}]&=\mathrm{Var}[W_{i}]\cdot\frac{n+1}{n}
+                       =\frac{\rho_{i}(1-\rho_{i})}{n}
+  \end{align}
+
+*** Anomaly Detection
+# calculate
+- confidence interval with Baysian bootstrap on weights of bags
+  - *regular:* intervals intersect each other
+  - *anomalous:* otherwise
+#+begin_center
+\includegraphics[width=.6\linewidth]{hypo_testing}
+#+end_center
+
+
+* Numerical Examples
+** COMMENT darknet data analysis
+*** Internet Incident Detection
+- detect incidents from darknet data 
+  - time, source IP/port, destination IP/port
+  - time window size of bags: 1.5 hours
+  - size of reference datasets: 12 hours (8 bags)
+  - size of test datasets: 4.5 hours (3 bags)
+  - statistics in bags: number of packets per IP block
+  - confidence interval: 0.99
+
+*** Score Calculation
+\begin{center}
+  \includegraphics<+>[page=1,width=\linewidth]{incident}%
+  \includegraphics<+>[page=2,width=\linewidth]{incident}%
+  \includegraphics<+>[page=3,width=\linewidth]{incident}%
+  \includegraphics<+>[page=4,width=\linewidth]{incident}%
+  \includegraphics<+>[page=5,width=\linewidth]{incident}%
+  \includegraphics<+>[page=6,width=\linewidth]{incident}%
+  \includegraphics<+>[page=7,width=\linewidth]{incident}%
+  \includegraphics<+>[page=8,width=\linewidth]{incident}%
+  \includegraphics<+>[page=9,width=\linewidth]{incident}%
+  \includegraphics<+>[page=10,width=\linewidth]{incident}%
+  \includegraphics<+>[page=11,width=\linewidth]{incident}%
+\end{center}
+
+*** Example of Detection
+\begin{center}
+  \includegraphics<+>[width=.7\linewidth]{1day}%
+  \includegraphics<+>[width=.7\linewidth]{6days}%
+  % \includegraphics<+>[width=.8\linewidth]{31days}%
+\end{center}
+
+** enron corpus analysis
+*** ENRON Corpus
+**** Enron Email Dataset (Cohen, 2009)                    :B_exampleblock:
+:PROPERTIES:
+:BEAMER_env: exampleblock
+:END:
+email transmission data from about 150 users,
+mostly senior management of Enron
+**** specification                                       :B_ignoreheading:
+:PROPERTIES:
+:BEAMER_env: ignoreheading
+:END:
+- duration: 2000/6 -- 2002/5 (accounting scandal: 2001)
+- time window size of bags: 1 week
+- size of reference datasets: 5 weeks
+- size of test datasets: 3 weeks
+- statistics in bags: 7 stats of bipartite graphs
+  - degree of sender / receiver
+  - 2nd order degree of sender-sender / receiver-receiver
+  - number of messages from sender / to receiver
+  - number of messages between sender and receiver
+- confidence interval: 0.95
+
+*** Results of Analysis
+#+begin_center
+\includegraphics[width=.8\linewidth]{enronBig}
+#+end_center
+\nocite{Sun_etal2007kdd}
+
+
+* Conclusion
+*** Concluding Remarks
+we consider
+- change-point detection for sequence of bags of data
+- a statistically appropriate distance between bags-of-data
+- change-point scores based on entropy estimators 
+- confidence intervals with Bayesian bootstrap
+possible extension would be
+- on-line detection with stable entropy estimators
+- on-line adaptive thresholding 
+
+*** References
+:PROPERTIES:
+:BEAMER_OPT: allowframebreaks
+:END:
+\printbibliography[heading=none]
+
+
+* COMMENT File Local Variables
+# Local Variables:
+# End:
