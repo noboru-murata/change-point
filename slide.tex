@@ -1,4 +1,4 @@
-% Created 2023-06-19 Mon 12:52
+% Created 2023-06-20 Tue 17:52
 % Intended LaTeX compiler: pdflatex
 \documentclass[fleqn,aspectratio=1610]{beamer}
 \author{Noboru Murata}
@@ -7,7 +7,7 @@
 \subtitle{an extension of anomaly analysis}
 \usepackage[toc=none]{mytalk}
 \addbibresource{papers.bib}
-\graphicspath{{figs/},{refs/}}
+\graphicspath{{figs/}{refs/}}
 \DeclareGraphicsExtensions{.pdf,.png,.eps,.jpg}
 \institute{\url{https://noboru-murata.github.io/}}
 \hypersetup{
@@ -26,10 +26,10 @@
 
 
 \section{Introduction}
-\label{sec:org86564c3}
+\label{sec:org205a746}
 \subsection{motivated examples}
-\label{sec:org0741ec2}
-\begin{frame}[label={sec:org44b06e5},t]{Anomaly \& Change-point Detection}
+\label{sec:org218a7df}
+\begin{frame}[label={sec:org6b70b9c},t]{Anomaly \& Change-point Detection}
 \begin{center}
 \includegraphics[page=1,width=.8\linewidth]{changepoint_new}
 \end{center}
@@ -44,7 +44,7 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org9b34574},t]{Simple Stochastic Problem}
+\begin{frame}[label={sec:orge40a37d},t]{Simple Stochastic Problem}
 \begin{center}
 \includegraphics[page=2,width=.8\linewidth]{changepoint_new}
 \end{center}
@@ -77,7 +77,7 @@
 \end{overprint}
 \end{frame}
 
-\begin{frame}[label={sec:org345c3d2},t]{Difficult Stochastic Problem}
+\begin{frame}[label={sec:org6ea7c5a},t]{Difficult Stochastic Problem}
 \begin{center}
 \includegraphics[page=4,width=.8\linewidth]{changepoint_new}
 \end{center}
@@ -109,7 +109,7 @@
 \end{overprint}
 \end{frame}
 
-\begin{frame}[label={sec:org93c3ced},t]{Slightly Difficult Problem}
+\begin{frame}[label={sec:orge173104},t]{Slightly Difficult Problem}
 \begin{center}
 \includegraphics[page=11,width=.8\linewidth]{changepoint_new}
 \end{center}
@@ -145,7 +145,7 @@
 \end{overprint}
 \end{frame}
 
-\begin{frame}[label={sec:orgd7ab62b},t]{More Difficult Problem}
+\begin{frame}[label={sec:orgd1a9695},t]{More Difficult Problem}
 \begin{center}
 \includegraphics[page=9,width=.8\linewidth]{changepoint_new}
 \end{center}
@@ -183,8 +183,8 @@ note: \alert{multi-dimensional problem}
 \end{frame}
 
 \subsection{target problem}
-\label{sec:org88a2375}
-\begin{frame}[label={sec:orgd088d70}]{Change-point Detection}
+\label{sec:orgb6abd6a}
+\begin{frame}[label={sec:orga4bbac1}]{Change-point Detection}
 \begin{alertblock}{Problem}
 find time points at which 
 the generating mechanism of time series suddenly changes
@@ -203,7 +203,7 @@ the generating mechanism of time series suddenly changes
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orga82dbae}]{Standard Problem Setting}
+\begin{frame}[label={sec:orgd98c5c8}]{Standard Problem Setting}
 \begin{itemize}
 \item framework
 \begin{itemize}
@@ -224,7 +224,7 @@ examine whether \(X_t,X_{t+1},\dotsc\) differ from
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org34f2c28}]{Previous Works}
+\begin{frame}[label={sec:org1bd31dd}]{Previous Works}
 \begin{itemize}
 \item representative algorithms
 \begin{itemize}
@@ -245,7 +245,7 @@ examine whether \(X_t,X_{t+1},\dotsc\) differ from
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org40686f9},t]{Target Problem}
+\begin{frame}[label={sec:org2c4ad5c},t]{Target Problem}
 \begin{center}
 \includegraphics[page=6,width=.75\linewidth]{changepoint_new}
 \end{center}
@@ -295,10 +295,10 @@ examine whether \(X_t,X_{t+1},\dotsc\) differ from
 
 
 \section{Problem Formulation}
-\label{sec:org217cdcf}
+\label{sec:org9fa4e0a}
 \subsection{change-point in bags-of-data}
-\label{sec:orgff26bea}
-\begin{frame}[label={sec:org224b13b}]{Our Problem Setting}
+\label{sec:orge7d9aa0}
+\begin{frame}[label={sec:org1fbd2eb}]{Our Problem Setting}
 \begin{itemize}
 \item framework
 \begin{itemize}
@@ -316,14 +316,14 @@ in statistical setup:\\[0pt]
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgd0608a6}]{Sequence of Bags-of-Data}
+\begin{frame}[label={sec:org007d6e6}]{Sequence of Bags-of-Data}
 \begin{center}
 \includegraphics[width=\linewidth,viewport=0 20 960 340,clip]{time_series_hist}\\[0pt]
 detect a change of distributions behind bags
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org4a51d09}]{Problem setting}
+\begin{frame}[label={sec:org6028c8c}]{Problem setting}
 \begin{itemize}
 \item standard problem setting
 \begin{center}
@@ -336,7 +336,7 @@ detect a change of distributions behind bags
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org1b9b21a}]{Examples of Problem}
+\begin{frame}[label={sec:org90e5879}]{Examples of Problem}
 \begin{itemize}
 \item graph-structured examples: sender-receiver scenario
 \begin{itemize}
@@ -358,7 +358,7 @@ detect a change of distributions behind bags
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgc7354f3}]{Representation by Bags}
+\begin{frame}[label={sec:orgf853e87}]{Representation by Bags}
 \begin{itemize}
 \item parametric model
 \begin{equation}
@@ -376,7 +376,7 @@ deal with probability distributions \(\{P_{B_t}\}\)
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org73bc095}]{Proposed Approach}
+\begin{frame}[label={sec:org79ae804}]{Proposed Approach}
 \begin{itemize}
 \item non-parametric model: \alert{weighted data sets (histograms)}
 \begin{itemize}
@@ -396,15 +396,15 @@ is anomalous or not
 \end{frame}
 
 \subsection{metric of bags-of-data}
-\label{sec:org39dbb8a}
-\begin{frame}[label={sec:org65be65e}]{Embedding in a Metric Space}
+\label{sec:orgdfc40ef}
+\begin{frame}[label={sec:orga7975e3}]{Embedding in a Metric Space}
 \begin{center}
 \includegraphics[width=.8\linewidth]{embedding}\\[0pt]
 detect a significant change by following a path of bags
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:org56d6828}]{Regular? or Anomalous?}
+\begin{frame}[label={sec:org0563b1c}]{Regular? or Anomalous?}
 \begin{center}
 \includegraphics[width=.5\linewidth]{our_problem_setting}
 \\[10pt]
@@ -412,7 +412,7 @@ detect a significant change by following a path of bags
 \end{center}
 \end{frame}
 
-\begin{frame}[label={sec:orgf017324}]{Earth Mover's Distance}
+\begin{frame}[label={sec:org53e6d8d}]{Earth Mover's Distance}
 \begin{itemize}
 \item distance between distributions \(P\) and \(Q\):
 \begin{itemize}
@@ -433,7 +433,7 @@ in computer vision
 \end{multline}
 \end{frame}
 
-\begin{frame}[label={sec:org2742db4}]{Earth Mover's Distance}
+\begin{frame}[label={sec:org411d97d}]{Earth Mover's Distance}
 \begin{center}
 \includegraphics[width=.75\linewidth]{emd_final}
 \\[10pt]
@@ -443,11 +443,11 @@ histogram: \(\{(\text{bin}, \text{freq})\}\);
 \end{center}
 \end{frame}
 
-\againframe<1>{sec:org56d6828}
+\againframe<1>{sec:org0563b1c}
 
 \subsection{two sample problem for bags-of-data}
-\label{sec:orgc273c38}
-\begin{frame}[label={sec:org017d3ef}]{Two Sample Problem}
+\label{sec:org7276be2}
+\begin{frame}[label={sec:orgccde405}]{Two Sample Problem}
 \begin{alertblock}{Problem}
 given i.i.d. observations 
 \(\{x_{i};\,i=1,\dotsc,m\}\sim P\) and 
@@ -465,7 +465,7 @@ examine whether \(P\not=Q\)
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org58b9d4b}]{Information \& Entropy Estimators}
+\begin{frame}[label={sec:orgbc5fb2a}]{Information \& Entropy Estimators}
 \begin{itemize}
 \item distance-based entropy estimators
 
@@ -494,7 +494,7 @@ examine whether \(P\not=Q\)
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orge181181}]{Change-Point Scores}
+\begin{frame}[label={sec:org5bf7112}]{Change-Point Scores}
 \begin{itemize}
 \item reference and test datasets
 \begin{align}
@@ -525,7 +525,7 @@ where weights are used as discounting factors
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org2fd2478}]{Bootstrap Confidence Interval}
+\begin{frame}[label={sec:org8953c0f}]{Bootstrap Confidence Interval}
 \begin{itemize}
 \item Bayesian bootstrap: Bayesian analogue of the bootstrap
 \begin{quote}
@@ -551,7 +551,7 @@ where weights are used as discounting factors
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org0466614}]{Anomaly Detection}
+\begin{frame}[label={sec:orgb952bf1}]{Anomaly Detection}
 \begin{itemize}
 \item confidence interval with Baysian bootstrap on weights of bags
 \begin{itemize}
@@ -566,11 +566,11 @@ where weights are used as discounting factors
 
 
 \section{Numerical Examples}
-\label{sec:org082c2f3}
+\label{sec:orga262361}
 \subsection{enron corpus analysis}
-\label{sec:orgfe13fe5}
-\begin{frame}[label={sec:orgde3a921}]{ENRON Corpus}
-\begin{exampleblock}{Enron Email Dataset (Cohen, 2009)}\label{sec:org070c4f2}
+\label{sec:orgead1550}
+\begin{frame}[label={sec:org810af60}]{ENRON Corpus}
+\begin{exampleblock}{Enron Email Dataset (Cohen, 2009)}\label{sec:orgfd8ed58}
 email transmission data from about 150 users,
 mostly senior management of Enron
 \end{exampleblock}
@@ -590,7 +590,7 @@ mostly senior management of Enron
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org0eabc0f}]{Results of Analysis}
+\begin{frame}[label={sec:orgbd4b9fe}]{Results of Analysis}
 \begin{center}
 \includegraphics[width=.8\linewidth]{enronBig}
 \end{center}
@@ -599,8 +599,8 @@ mostly senior management of Enron
 
 
 \section{Conclusion}
-\label{sec:org4a7f2de}
-\begin{frame}[label={sec:orgcdb8128}]{Concluding Remarks}
+\label{sec:org2888016}
+\begin{frame}[label={sec:org728ef65}]{Concluding Remarks}
 we consider
 \begin{itemize}
 \item change-point detection for sequence of bags of data

@@ -1,1 +1,33 @@
 * change-point
+
+Change-point detection is an important engineering problem, and
+various methods have been proposed. Many existing methods assume that
+each data point observed at each time step is a single
+multi-dimensional vector, but to make them applicable to a wider class
+of problems, we propose a non-parametric and computationally efficient
+method. First, the underlying distribution behind each bag-of-data is
+estimated and embedded in the metric space with earth mover's
+distance. Then, using the distance-based information estimator, we
+evaluate how the sequence of bags-of-data varies in the metric space
+to derive a change-point score. A procedure is also incorporated to
+adaptively determine the timing of alarms by calculating confidence
+intervals for the change-point scores at each time step by means of
+Bayesian bootstrap. This makes it possible to avoid false alarms in
+noisy situations and to detect changes of various magnitudes.
+
+#+begin_quote
+Koshijima, K., Hino, H. and Murata, N.:
+"Change-Point Detection in a Sequence of Bags-of-Data",
+/IEEE Transactions on Knowledge and Data Engineering/,
+Volume 27, Number 10, October 2015, Pages 2632-2644.
+[[https://doi.org/10.1109/TKDE.2015.2426693]]
+#+end_quote
+
+related works
+#+begin_quote
+Hino, H. and Murata, N.:
+"Information estimators for weighted observations",
+/Neural Networks/,
+Volume 46, October 2013, Pages 260–275.
+[[https://doi.org/10.1016/j.neunet.2013.06.005]]
+#+end_quote
